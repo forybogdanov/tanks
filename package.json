@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build:client": "tsc --project tsconfig.client.json",
-    "start": "npm run build:client && npx tsx server.ts",
+    "start": "npx tsx server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nikifor Bogdanov",
