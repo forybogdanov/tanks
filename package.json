@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Multiplayer tank game for my Advanced JS course",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "build:client": "tsc --project tsconfig.client.json",
+    "start": "npm run build:client && npx tsx server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nikifor Bogdanov",
@@ -11,6 +14,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.9",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
