@@ -1,78 +1,79 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const ROTATION_SPEED = 3;
+const FORWARD_SPEED = 5;
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    // background color
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    window.addEventListener('resize', resizeCanvas);
-}
+const PROJECTILE_SPEED = 10;
+const PROJECTILE_RADIUS = 8;
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
+let objects = [];
 
-function drawImage(img, x, y, width, height, rotationDegrees = 0) {
-    function draw() {
-        const rotationRadians = rotationDegrees * Math.PI / 180;
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rotationRadians);
-        ctx.drawImage(img, -width / 2, -height / 2, width, height);
-        // ctx.strokeStyle = 'white';
-        // ctx.strokeRect(- width / 2, - height / 2, width, height); // Placeholder rectangle
-        // ctx.beginPath();
-        // ctx.arc(0, 0, 10, 0, 2 * Math.PI);
-        // ctx.stroke();
-        ctx.restore();
+class Projectile {
+    constructor(x, y, direction, color) {
+        this.x = x;
+        this.y = y;
+        this.direction = direction;
+        this.color = color;
+        this.type = "projectile";
     }
-    if (!img.complete) {
-        img.onload = function() {
-            draw();
-        };
-    } else {
-        draw();
+    draw() {
+        drawCircle(this.x, this.y, PROJECTILE_RADIUS, this.color, "white");
     }
-}
-
-resizeCanvas();
-
-const orangeTankImg = new Image();
-orangeTankImg.src = 'assets/orange_tank.png';
-
-playerImages = {
-    'orange': orangeTankImg
+    handleMovement() {
+        this.x += Math.cos(degreesToRadians(this.direction)) * PROJECTILE_SPEED;
+        this.y += Math.sin(degreesToRadians(this.direction)) * PROJECTILE_SPEED;
+    }
 };
 
 class Player {
-    constructor(id, x, y, angle) {
+    constructor(id, x, y, angle, color) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.angle = angle;
-        this.type = 'orange';
+        this.angle = angle; // in degrees
+        this.color = color;
+        this.type = "player";
     }
     draw() {
-        drawImage(playerImages[this.type], this.x, this.y, 200, 120, this.angle);
+        drawImage(playerImages[this.color], this.x, this.y, 200, 120, this.angle);
+    }
+    handleControls() {
+        if (isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) {
+            this.angle -= ROTATION_SPEED;
+            if (this.angle < 0) this.angle +=360;
+        }
+        if (isKeyPressed[KEY_CODES.RIGHT] || isKeyPressed[KEY_CODES.D]) {
+            this.angle += ROTATION_SPEED;
+            if (this.angle > 360) this.angle -= 360;
+        }
+        if (isKeyPressed[KEY_CODES.UP] || isKeyPressed[KEY_CODES.W]) {
+            this.x += Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
+            this.y += Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
+        }
+        if (isKeyPressed[KEY_CODES.DOWN] || isKeyPressed[KEY_CODES.S]) {
+            this.x -= Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
+            this.y -= Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
+        }
+        if (isKeyPressed[KEY_CODES.SPACE]) {
+            let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
+            let projY = this.y + Math.sin(degreesToRadians(this.angle)) * 60;
+            let projectile = new Projectile(projX, projY, this.angle, "yellow");
+            objects.push(projectile);
+            isKeyPressed[KEY_CODES.SPACE] = false;
+        }
     }
 }
 
-let players = [];
 
-let myPlayer = new Player('myId', 300, 300, 0);
-myPlayer.draw();
-players.push(myPlayer);
+let player = new Player('myId', 300, 300, 0, 'orange');
+objects.push(player);
+
 
 function gameLoop() {
     clearCanvas();
-    for (let id in players) {
-        players[id].draw();
+    for (let object of objects) {
+        if (object.type === "player") object.handleControls();
+        if (object.type === "projectile") object.handleMovement();
+        object.draw();
     }
-    players[0].angle += 2;
 }
 
 setInterval(gameLoop, 30);
