@@ -62,9 +62,24 @@ class Player {
     }
 }
 
+const socket = io();
 
-let player = new Player('myId', 300, 300, 0, 'orange');
-objects.push(player);
+let player;
+
+socket.emit('loginRequest', {});
+socket.on('userLogin', (data) => {
+    console.log(data);
+    const { players, newPlayer } = data;
+    player = new Player(newPlayer.id, newPlayer.x, newPlayer.y, newPlayer.angle, "orange");
+    objects.push(player);
+    for (let p of players) {
+        if (p.id !== newPlayer.id) {
+            let otherPlayer = new Player(p.id, p.x, p.y, p.angle, "orange");
+            objects.push(otherPlayer);
+        }
+    }
+});
+
 
 
 function gameLoop() {
