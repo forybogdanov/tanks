@@ -29,7 +29,7 @@ class Player {
         this.x = x;
         this.y = y;
         this.angle = angle; // in degrees
-        this.color = color;
+        this.color = "blue";
         this.type = "player";
     }
     draw() {
@@ -55,12 +55,22 @@ class Player {
         if (isKeyPressed[KEY_CODES.SPACE]) {
             let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
             let projY = this.y + Math.sin(degreesToRadians(this.angle)) * 60;
-            let projectile = new Projectile(projX, projY, this.angle, "yellow");
+            let projectile = new Projectile(projX, projY, this.angle, "blue");
             objects.push(projectile);
             isKeyPressed[KEY_CODES.SPACE] = false;
         }
     }
 }
+
+class Enemy extends Player {
+    constructor(id, x, y, angle, color) {
+        super(id, x, y, angle, color);
+        this.type = "enemy";
+        this.color = 'orange';
+    }
+}
+
+
 
 const socket = io();
 
@@ -70,14 +80,30 @@ socket.emit('loginRequest', {});
 socket.on('userLogin', (data) => {
     console.log(data);
     const { players, newPlayer } = data;
-    player = new Player(newPlayer.id, newPlayer.x, newPlayer.y, newPlayer.angle, "orange");
+    player = new Player(newPlayer.id, newPlayer.x, newPlayer.y, newPlayer.angle);
     objects.push(player);
     for (let p of players) {
         if (p.id !== newPlayer.id) {
-            let otherPlayer = new Player(p.id, p.x, p.y, p.angle, "orange");
+            let otherPlayer = new Enemy(p.id, p.x, p.y, p.angle);
             objects.push(otherPlayer);
         }
     }
+});
+
+socket.on('playerMoved', (data) => {
+    const { id, x, y, angle } = data;
+    for (let object of objects) {
+        if (object.id === id && object.type === "enemy") {
+            object.x = x;
+            object.y = y;
+            object.angle = angle;
+            break;
+        }
+    }
+});
+
+window.addEventListener("beforeunload", () => {
+    socket.emit('disconnect', { id: player.id });
 });
 
 
@@ -88,6 +114,7 @@ function gameLoop() {
         if (object.type === "player") object.handleControls();
         if (object.type === "projectile") object.handleMovement();
         object.draw();
+        socket.emit('move', { id: object.id, x: object.x, y: object.y, angle: object.angle } );
     }
 }
 

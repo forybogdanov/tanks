@@ -19,12 +19,28 @@ let players: Array<{ id: string; x: number; y: number, angle: number }> = [];
 app.use(express.static('client'));
 
 io.on('connection', (socket) => {
+
   socket.on('loginRequest', () => {
-    const id = randomUUID();
-    const newPlayer = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 2 * Math.PI };
+    const id = socket.id;
+    const newPlayer = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360 };
     socket.emit('userLogin', {players, newPlayer});
     socket.broadcast.emit('newPlayer', newPlayer);
     players.push(newPlayer);
+  });
+
+  socket.on('disconnect', () => {
+    players = players.filter(p => p.id !== socket.id);
+    socket.broadcast.emit('playerDisconnected', socket.id);
+  });
+
+  socket.on('move', (data: { id: string; x: number; y: number, angle: number }) => {
+    const player = players.find(p => p.id === data.id);
+    if (player) {
+      player.x = data.x;
+      player.y = data.y;
+      player.angle = data.angle;
+      socket.broadcast.emit('playerMoved', data);
+    }
   });
 });
 

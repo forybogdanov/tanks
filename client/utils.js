@@ -77,8 +77,12 @@ function degreesToRadians(degrees) {
 const orangeTankImg = new Image();
 orangeTankImg.src = 'assets/orange_tank.png';
 
+const blueTankImg = new Image();
+blueTankImg.src = 'assets/blue_tank.png';
+
 const playerImages = {
-    'orange': orangeTankImg
+    'orange': orangeTankImg,
+    'blue': blueTankImg
 };
 
 resizeCanvas();
