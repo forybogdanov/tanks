@@ -102,6 +102,16 @@ socket.on('playerMoved', (data) => {
     }
 });
 
+socket.on('newPlayer', (data) => {
+    const { id, x, y, angle } = data;
+    let newEnemy = new Enemy(id, x, y, angle);
+    objects.push(newEnemy);
+});
+
+socket.on('playerDisconnected', (id) => {
+    objects = objects.filter(object => object.id !== id);
+});
+
 window.addEventListener("beforeunload", () => {
     socket.emit('disconnect', { id: player.id });
 });
