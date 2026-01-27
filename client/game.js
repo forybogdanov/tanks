@@ -4,7 +4,12 @@ const FORWARD_SPEED = 5;
 const PROJECTILE_SPEED = 10;
 const PROJECTILE_RADIUS = 8;
 
+const SHOOT_COOLDOWN = 30; // frames
+
+const socket = io();
+
 let objects = [];
+let player;
 
 class Projectile {
     constructor(x, y, direction, color) {
@@ -31,11 +36,14 @@ class Player {
         this.angle = angle; // in degrees
         this.color = "blue";
         this.type = "player";
+        this.cooldown = 0;
     }
     draw() {
         drawImage(playerImages[this.color], this.x, this.y, 200, 120, this.angle);
     }
     handleControls() {
+        this.cooldown--;
+        if (this.cooldown < 0) this.cooldown = 0;
         if (isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) {
             this.angle -= ROTATION_SPEED;
             if (this.angle < 0) this.angle +=360;
@@ -52,11 +60,13 @@ class Player {
             this.x -= Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
             this.y -= Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
         }
-        if (isKeyPressed[KEY_CODES.SPACE]) {
+        if (isKeyPressed[KEY_CODES.SPACE] && this.cooldown === 0) {
             let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
             let projY = this.y + Math.sin(degreesToRadians(this.angle)) * 60;
             let projectile = new Projectile(projX, projY, this.angle, "blue");
+            socket.emit('shoot', { id: this.id, x: projX, y: projY, direction: this.angle });
             objects.push(projectile);
+            this.cooldown = SHOOT_COOLDOWN;
             isKeyPressed[KEY_CODES.SPACE] = false;
         }
     }
@@ -69,12 +79,6 @@ class Enemy extends Player {
         this.color = 'orange';
     }
 }
-
-
-
-const socket = io();
-
-let player;
 
 socket.emit('loginRequest', {});
 socket.on('userLogin', (data) => {
@@ -114,6 +118,12 @@ socket.on('playerDisconnected', (id) => {
 
 window.addEventListener("beforeunload", () => {
     socket.emit('disconnect', { id: player.id });
+});
+
+socket.on('shoot', (data) => {
+    const { id, x, y, direction } = data;
+    let projectile = new Projectile(x, y, direction, "orange");
+    objects.push(projectile);
 });
 
 

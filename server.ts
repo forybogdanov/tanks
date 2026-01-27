@@ -42,6 +42,10 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('playerMoved', data);
     }
   });
+
+  socket.on('shoot', (data: { id: string; x: number; y: number; direction: number }) => {
+    socket.broadcast.emit('shoot', data);
+  });
 });
 
 httpServer.listen(PORT, () => {
