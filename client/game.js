@@ -126,8 +126,6 @@ socket.on('shoot', (data) => {
     objects.push(projectile);
 });
 
-
-
 function gameLoop() {
     clearCanvas();
     for (let object of objects) {
