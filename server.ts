@@ -1,7 +1,8 @@
-import { randomUUID } from 'crypto';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { collisionDetectionPointRectServer } from './utils';
+import { Point, Rect } from './types';
 
 const app = express();
 const httpServer = createServer(app);
@@ -15,6 +16,7 @@ const io = new Server(httpServer, {
 const PORT = process.env.PORT || 3000;
 
 let players: Array<{ id: string; x: number; y: number, angle: number }> = [];
+let projectiles: Array<{ id: string; x: number; y: number; direction: number }> = [];
 
 app.use(express.static('client'));
 
@@ -44,6 +46,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('shoot', (data: { id: string; x: number; y: number; direction: number }) => {
+    projectiles.push(data);
     socket.broadcast.emit('shoot', data);
   });
 });
@@ -51,3 +54,30 @@ io.on('connection', (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+function checkForCollisions() {
+  // if (players.length === 0) return;
+  // const p: Point = { x: 300, y: 300 };
+  // const rect: Rect = { x: players[0].x, y: players[0].y, width: 200, height: 120, angle: players[0].angle };
+  // // console.log(rect);
+  // console.log(collisionDetectionPointRectServer(p, rect));
+  for (let projectile of projectiles) {
+    for (let player of players) {
+      if (projectile.id === player.id) continue; // Skip self-collision
+      const p: Point = { x: projectile.x, y: projectile.y };
+      const rect: Rect = { x: player.x, y: player.y, width: 200, height: 120, angle: player.angle };
+      if (collisionDetectionPointRectServer(p, rect)) {
+        console.log(`Projectile ${projectile.id} hit Player ${player.id}`);
+        socket.broadcast.emit('playerHit', { playerId: player.id, projectileId: projectile.id });
+        // Remove projectile after hit
+        projectiles = projectiles.filter(pr => pr !== projectile);
+      }
+    }
+  }
+}
+
+function serverLoop() {
+  checkForCollisions();
+}
+
+setInterval(serverLoop, 30); // Run server loop every 30 ms

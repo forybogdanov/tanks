@@ -50,12 +50,22 @@ socket.on('shoot', (data) => {
     objects.push(projectile);
 });
 
+socket.on('playerHit', (data) => {
+    const { playerId, projectileId } = data;
+    objects = objects.filter(object => object.id !== playerId && object.id !== projectileId);
+    if (player.id === playerId) {
+        console.log("You were hit!");
+    }
+});
+
 function drawUI() {
     drawHPBar(player.hp);
 }
 
 function gameLoop() {
     clearCanvas();
+    drawCircle(300, 300, 5, 'gray');
+    // console.log(collisionDetectionPointRect({x: 300, y: 300}, {x: player.x, y: player.y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT, angle: player.angle}) );
     for (let object of objects) {
         object.handleMovement();
         object.draw();
