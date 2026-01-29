@@ -102,4 +102,12 @@ function collisionDetectionPointRect(point, rect) {
             projectedPoint.y < rect.y + rect.height / 2);
 }
 
-resizeCanvas();
+function drawHPBar(hp) {
+    const startX = 10, startY = 10;
+    const greenHSV = {h: 120, s: 0.66, v: 1.0};
+    
+    for (let i = 0; i < hp; i++) {
+        ctx.fillStyle = `hsl(${greenHSV.h * (hp/100)}, ${greenHSV.s * 100}%, ${greenHSV.v * 50}%)`;
+        ctx.fillRect(startX + i * 4, startY, 3, 5);
+    }
+}
