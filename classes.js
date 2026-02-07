@@ -24,10 +24,10 @@ class Player {
         this.color = "blue";
         this.type = "player";
         this.cooldown = 0;
-        this.hp = 100;
+        this.hp = MAX_HP;
     }
     draw() {
-        drawImage(playerImages[this.color], this.x, this.y, 200, 120, this.angle);
+        drawImage(playerImages[this.color], this.x, this.y, PLAYER_WIDTH, PLAYER_HEIGHT, this.angle);
     }
     handleMovement() {
         this.cooldown--;
@@ -69,10 +69,10 @@ class Enemy {
         this.color = "orange";
         this.type = "enemy";
         this.cooldown = 0;
-        this.hp = 100;
+        this.hp = MAX_HP;
     }
     draw() {
-        drawImage(playerImages[this.color], this.x, this.y, 200, 120, this.angle);
+        drawImage(playerImages[this.color], this.x, this.y, PLAYER_WIDTH, PLAYER_HEIGHT, this.angle);
     }
     handleMovement() {}
 }
