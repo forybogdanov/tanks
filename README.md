@@ -6,6 +6,5 @@ Multiplayer tank game for my Advanced JS course
 - Shoot Animations
 - Fog of war
 - Score Table
-- Music
 - Shaders
 - Move Camera

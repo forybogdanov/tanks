@@ -38,7 +38,7 @@ class Player {
                 element.setAttribute('src', 'assets/move_sound.mp3');
                 element.setAttribute('loop', 'true');
                 element.setAttribute('id', 'moveSound');
-                element.setAttribute('volume', '0.01');
+                element.volume = SOUNDS_VOLUME;
                 document.body.appendChild(element);
                 element.play();
             } else {
@@ -52,6 +52,7 @@ class Player {
         const element = document.createElement('audio');
         element.setAttribute('src', 'assets/shoot_sound.mp3');
         element.play();
+        element.volume = SOUNDS_VOLUME;
         document.body.appendChild(element);
         element.addEventListener('ended', () => {
             document.body.removeChild(element);
@@ -61,6 +62,7 @@ class Player {
         const element = document.createElement('audio');
         element.setAttribute('src', 'assets/hit_sound.mp3');
         element.play();
+        element.volume = SOUNDS_VOLUME;
         document.body.appendChild(element);
     }
     handleMovement() {
@@ -112,6 +114,13 @@ class Player {
             this.handleMoveSound();
         } else {
             this.ticksFromLastMove++;
+        }
+    }
+    handleDeath() {
+        const el = document.getElementById('moveSound');
+        if (el) {
+            el.pause();
+            document.body.removeChild(el);
         }
     }
 }

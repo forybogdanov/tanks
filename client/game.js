@@ -52,12 +52,12 @@ socket.on('shoot', (data) => {
 
 socket.on('playerHit', (data) => {
     const { playerId, projectileId } = data;
-    console.log(`Player ${playerId} was hit by projectile ${projectileId}`);
     objects = objects.filter(object => object.id !== projectileId);
     const playerHit = objects.find(object => object.id === playerId);
     if (playerHit) {
         playerHit.hp -= PROJECTILE_POWER;
         if (playerHit.hp <= 0) {
+            if (playerHit.id === player.id) player.handleDeath();
             handleDieSound();
             objects = objects.filter(object => object.id !== playerId);
         }

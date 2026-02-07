@@ -66,6 +66,10 @@ function checkForCollisions() {
       const p: Point = { x: projectile.x, y: projectile.y };
       const rect: Rect = { x: player.x, y: player.y, width: 200, height: 120, angle: player.angle };
       if (collisionDetectionPointRectServer(p, rect)) {
+        if (player.health > 0) {
+          player.health -= 20; // Reduce health by 20 on hit
+        }
+        if (player.health < 0) players = players.filter(p => p.id !== player.id); // Remove player if health drops below 0
         io.emit('playerHit', { playerId: player.id, projectileId: projectile.id });
         projectiles = projectiles.filter(pr => pr !== projectile);
       }
