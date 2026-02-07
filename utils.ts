@@ -17,3 +17,7 @@ export function collisionDetectionPointRectServer(point: Point, rect: Rect) {
             projectedPoint.y > rect.y - rect.height / 2 &&
             projectedPoint.y < rect.y + rect.height / 2);
 }
+
+export function degreesToRadians(degrees: number) {
+    return degrees * Math.PI / 180;
+}

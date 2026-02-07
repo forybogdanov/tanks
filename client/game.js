@@ -46,30 +46,36 @@ window.addEventListener("beforeunload", () => {
 
 socket.on('shoot', (data) => {
     const { id, x, y, direction } = data;
-    let projectile = new Projectile(x, y, direction, "orange");
+    let projectile = new Projectile(id, x, y, direction, "orange");
     objects.push(projectile);
 });
 
 socket.on('playerHit', (data) => {
     const { playerId, projectileId } = data;
-    objects = objects.filter(object => object.id !== playerId && object.id !== projectileId);
-    if (player.id === playerId) {
-        console.log("You were hit!");
+    console.log(`Player ${playerId} was hit by projectile ${projectileId}`);
+    objects = objects.filter(object => object.id !== projectileId);
+    const playerHit = objects.find(object => object.id === playerId);
+    if (playerHit) {
+        playerHit.hp -= PROJECTILE_POWER;
+        if (playerHit.hp <= 0) {
+            handleDieSound();
+            objects = objects.filter(object => object.id !== playerId);
+        }
     }
+    handleHitSound();
 });
 
 function drawUI() {
-    drawHPBar(player.hp);
+    drawHPBarPlayer(player.hp);
 }
 
 function gameLoop() {
     clearCanvas();
-    drawCircle(300, 300, 5, 'gray');
+    // drawCircle(300, 300, 5, 'gray');
     // console.log(collisionDetectionPointRect({x: 300, y: 300}, {x: player.x, y: player.y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT, angle: player.angle}) );
     for (let object of objects) {
         object.handleMovement();
         object.draw();
-        socket.emit('move', { id: object.id, x: object.x, y: object.y, angle: object.angle } );
     }
     drawUI();
 }
