@@ -14,4 +14,10 @@ const PROJECTILE_RADIUS = 8;
 const PROJECTILE_LIFETIME = 3000; // ms
 const PROJECTILE_POWER = 20;
 
+// Cover settings
+const COVER_WIDTH = 10;
 
+const TESTING_MODE = false;
+const SHADOWS_COLOR = 'black';
+const BACKGROUND_COLOR = 'grey';
+const COVER_COLOR = 'orange';

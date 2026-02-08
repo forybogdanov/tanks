@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { collisionDetectionPointRectServer, degreesToRadians } from './utils';
-import { Point, Rect } from './types';
+import { Point, Rect, Player, Projectile, Cover } from './types';
 
 const PROJECTILE_SPEED = 10;
 const PROJECTILE_RADIUS = 8;
@@ -18,8 +18,13 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 3000;
 
-let players: Array<{ id: string; x: number; y: number, angle: number, health: number }> = [];
-let projectiles: Array<{ id: string; playerId: string; x: number; y: number; direction: number }> = [];
+let players: Player[] = [];
+let projectiles: Projectile[] = [];
+const covers: Cover[] = [
+  { id: 'cover1', x: 500, y: 300, angle: 45, length: 250 },
+  { id: 'cover2', x: 900, y: 150, angle: 0, length: 250 },
+  { id: 'cover3', x: 900, y: 450, angle: 90, length: 250 }
+]
 
 app.use(express.static('client'));
 
@@ -27,8 +32,8 @@ io.on('connection', (socket) => {
 
   socket.on('loginRequest', () => {
     const id = socket.id;
-    const newPlayer = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360, health: 100 };
-    socket.emit('userLogin', {players, newPlayer});
+    const newPlayer: Player = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360, health: 100 };
+    socket.emit('userLogin', {players, newPlayer, covers});
     socket.broadcast.emit('newPlayer', newPlayer);
     players.push(newPlayer);
   });
@@ -38,7 +43,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerDisconnected', socket.id);
   });
 
-  socket.on('move', (data: { id: string; x: number; y: number, angle: number, health: number }) => {
+  socket.on('move', (data: Player) => {
     const player = players.find(p => p.id === data.id);
     if (player) {
       player.x = data.x;
@@ -49,7 +54,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('shoot', (data: { id: string; playerId: string; x: number; y: number; direction: number }) => {
+  socket.on('shoot', (data: Projectile) => {
     projectiles.push(data);
     socket.broadcast.emit('shoot', data);
   });
@@ -72,6 +77,15 @@ function checkForCollisions() {
         if (player.health < 0) players = players.filter(p => p.id !== player.id); // Remove player if health drops below 0
         io.emit('playerHit', { playerId: player.id, projectileId: projectile.id });
         projectiles = projectiles.filter(pr => pr !== projectile);
+      }
+    }
+
+    for (let cover of covers) {
+      const p: Point = { x: projectile.x, y: projectile.y };
+      const rect: Rect = { x: cover.x, y: cover.y, width: 10, height: cover.length, angle: cover.angle };
+      if (collisionDetectionPointRectServer(p, rect)) {
+        projectiles = projectiles.filter(pr => pr !== projectile);
+        break;
       }
     }
   }

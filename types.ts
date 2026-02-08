@@ -10,3 +10,27 @@ export interface Rect {
     height: number;
     angle: number;
 }
+
+export interface Player {
+    id: string;
+    x: number;
+    y: number;
+    angle: number;
+    health: number;
+}
+
+export interface Projectile {
+    id: string;
+    playerId: string;
+    x: number;
+    y: number;
+    direction: number;
+}
+
+export interface Cover {
+    id: string;
+    x: number;
+    y: number;
+    angle: number;
+    length: number;
+}

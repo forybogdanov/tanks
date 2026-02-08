@@ -7,6 +7,8 @@ class Projectile {
         this.color = color;
         this.type = "projectile";
         this.ticksFromLastMove = 0;
+        this.isBlocked = false;
+        this.lastMove = null;
     }
     draw() {
         drawCircle(this.x, this.y, PROJECTILE_RADIUS, this.color, "white");
@@ -27,6 +29,7 @@ class Player {
         this.type = "player";
         this.cooldown = 0;
         this.hp = MAX_HP;
+        this.isBlocked = false;
     }
     draw() {
         drawHPBarOverTank(this.hp, this.x - PLAYER_WIDTH / 2 , this.y - PLAYER_HEIGHT / 2 - 30);
@@ -65,29 +68,37 @@ class Player {
         element.volume = SOUNDS_VOLUME;
         document.body.appendChild(element);
     }
+    canMoveThatWay(key) {
+        if (key === KEY_CODES.LEFT || key === KEY_CODES.RIGHT) return !this.isBlocked;
+        return !this.isBlocked || (this.lastMove !== key);
+    }
     handleMovement() {
         let hasMoved = false;
         this.cooldown--;
         if (this.cooldown < 0) this.cooldown = 0;
-        if (isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) {
+        if ((isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) && this.canMoveThatWay(KEY_CODES.LEFT)) {
             this.angle -= ROTATION_SPEED;
             if (this.angle < 0) this.angle +=360;
             hasMoved = true;
+            this.lastMove = KEY_CODES.LEFT;
         }
-        if (isKeyPressed[KEY_CODES.RIGHT] || isKeyPressed[KEY_CODES.D]) {
+        if ((isKeyPressed[KEY_CODES.RIGHT] || isKeyPressed[KEY_CODES.D]) && this.canMoveThatWay(KEY_CODES.RIGHT)) {
             this.angle += ROTATION_SPEED;
             if (this.angle > 360) this.angle -= 360;
             hasMoved = true;
+            this.lastMove = KEY_CODES.RIGHT;
         }
-        if (isKeyPressed[KEY_CODES.UP] || isKeyPressed[KEY_CODES.W]) {
+        if ((isKeyPressed[KEY_CODES.UP] || isKeyPressed[KEY_CODES.W]) && this.canMoveThatWay(KEY_CODES.UP)) {
             this.x += Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
             this.y += Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
+            this.lastMove = KEY_CODES.UP;
         }
-        if (isKeyPressed[KEY_CODES.DOWN] || isKeyPressed[KEY_CODES.S]) {
+        if ((isKeyPressed[KEY_CODES.DOWN] || isKeyPressed[KEY_CODES.S]) && this.canMoveThatWay(KEY_CODES.DOWN)) {
             this.x -= Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
             this.y -= Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
+            this.lastMove = KEY_CODES.DOWN;
         }
         if (isKeyPressed[KEY_CODES.SPACE] && this.cooldown === 0) {
             let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
