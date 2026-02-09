@@ -20,12 +20,12 @@ class Projectile {
 };
 
 class Player {
-    constructor(id, x, y, angle) {
+    constructor(id, x, y, angle, color) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.angle = angle; // in degrees
-        this.color = "blue";
+        this.color = color;
         this.type = "player";
         this.cooldown = 0;
         this.hp = MAX_HP;
@@ -104,8 +104,14 @@ class Player {
             let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
             let projY = this.y + Math.sin(degreesToRadians(this.angle)) * 60;
             let projectileId = `proj_${Date.now()}_${Math.random()}`
-            let projectile = new Projectile(projectileId, projX, projY, this.angle, "blue");
-            socket.emit('shoot', { id: projectileId, playerId: this.id, x: projX, y: projY, direction: this.angle });
+            let projectile = new Projectile(projectileId, projX, projY, this.angle, this.color);
+            socket.emit('shoot', { 
+                id: projectileId, 
+                playerId: this.id, 
+                x: projX, 
+                y: projY, 
+                direction: this.angle, 
+                color: this.color });
             objects.push(projectile);
             this.cooldown = SHOOT_COOLDOWN;
             isKeyPressed[KEY_CODES.SPACE] = false;
@@ -137,12 +143,12 @@ class Player {
 }
 
 class Enemy {
-    constructor(id, x, y, angle) {
+    constructor(id, x, y, angle, color) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.angle = angle; // in degrees
-        this.color = "orange";
+        this.color = color;
         this.type = "enemy";
         this.cooldown = 0;
         this.hp = MAX_HP;

@@ -10,11 +10,11 @@ socket.emit('loginRequest', {});
 socket.on('userLogin', (data) => {
     const { players, newPlayer, covers: coversFromServer } = data;
     covers = coversFromServer;
-    player = new Player(newPlayer.id, newPlayer.x, newPlayer.y, newPlayer.angle);
+    player = new Player(newPlayer.id, newPlayer.x, newPlayer.y, newPlayer.angle, newPlayer.color);
     objects.push(player);
     for (let p of players) {
         if (p.id !== newPlayer.id) {
-            let otherPlayer = new Enemy(p.id, p.x, p.y, p.angle);
+            let otherPlayer = new Enemy(p.id, p.x, p.y, p.angle, p.color);
             objects.push(otherPlayer);
         }
     }
@@ -33,8 +33,8 @@ socket.on('playerMoved', (data) => {
 });
 
 socket.on('newPlayer', (data) => {
-    const { id, x, y, angle } = data;
-    let newEnemy = new Enemy(id, x, y, angle);
+    const { id, x, y, angle, color } = data;
+    let newEnemy = new Enemy(id, x, y, angle, color);
     objects.push(newEnemy);
 });
 
@@ -47,8 +47,8 @@ window.addEventListener("beforeunload", () => {
 });
 
 socket.on('shoot', (data) => {
-    const { id, x, y, direction } = data;
-    let projectile = new Projectile(id, x, y, direction, "orange");
+    const { id, x, y, direction, color } = data;
+    let projectile = new Projectile(id, x, y, direction, color);
     objects.push(projectile);
 });
 

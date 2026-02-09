@@ -17,6 +17,7 @@ export interface Player {
     y: number;
     angle: number;
     health: number;
+    color: string;
 }
 
 export interface Projectile {
@@ -25,6 +26,7 @@ export interface Projectile {
     x: number;
     y: number;
     direction: number;
+    color: string;
 }
 
 export interface Cover {

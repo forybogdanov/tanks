@@ -34,9 +34,17 @@ orangeTankImg.src = 'assets/orange_tank.png';
 const blueTankImg = new Image();
 blueTankImg.src = 'assets/blue_tank.png';
 
+const redTankImg = new Image();
+redTankImg.src = 'assets/red_tank.png';
+
+const greenTankImg = new Image();
+greenTankImg.src = 'assets/green_tank.png';
+
 const playerImages = {
     'orange': orangeTankImg,
-    'blue': blueTankImg
+    'blue': blueTankImg,
+    'red': redTankImg,
+    'green': greenTankImg
 };
 
 function resizeCanvas() {

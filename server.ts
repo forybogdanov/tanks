@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 
   socket.on('loginRequest', () => {
     const id = socket.id;
-    const newPlayer: Player = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360, health: 100 };
+    const newPlayer: Player = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360, health: 100, color: ['orange', 'blue', 'red', 'green'][Math.floor(Math.random() * 4)] };
     socket.emit('userLogin', {players, newPlayer, covers});
     socket.broadcast.emit('newPlayer', newPlayer);
     players.push(newPlayer);
@@ -71,10 +71,10 @@ function checkForCollisions() {
       const p: Point = { x: projectile.x, y: projectile.y };
       const rect: Rect = { x: player.x, y: player.y, width: 200, height: 120, angle: player.angle };
       if (collisionDetectionPointRectServer(p, rect)) {
-        if (player.health > 0) {
           player.health -= 20; // Reduce health by 20 on hit
-        }
-        if (player.health < 0) players = players.filter(p => p.id !== player.id); // Remove player if health drops below 0
+        if (player.health <= 0) {
+          players = players.filter(p => p.id !== player.id);
+         } // Remove player if health drops below 0
         io.emit('playerHit', { playerId: player.id, projectileId: projectile.id });
         projectiles = projectiles.filter(pr => pr !== projectile);
       }
