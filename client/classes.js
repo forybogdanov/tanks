@@ -72,29 +72,73 @@ class Player {
         if (key === KEY_CODES.LEFT || key === KEY_CODES.RIGHT) return !this.isBlocked;
         return !this.isBlocked || (this.lastMove !== key);
     }
+    checkCollisions(mockPlayer) {
+        let isBlocked = false;
+        for (let cover of covers) {
+            if (collisionDetectionPlayerCover(mockPlayer, cover)) {
+                isBlocked = true;
+                break;
+            }
+        }
+        return isBlocked;
+        
+    }
     handleMovement() {
         let hasMoved = false;
         this.cooldown--;
         if (this.cooldown < 0) this.cooldown = 0;
         if ((isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) && this.canMoveThatWay(KEY_CODES.LEFT)) {
+            let mockPlayer = new Player(this.id, this.x, this.y, this.angle - ROTATION_SPEED, this.color);
+            mockPlayer.angle -= ROTATION_SPEED;
+            if (mockPlayer.angle < 0) mockPlayer.angle +=360;
+            if (this.checkCollisions(mockPlayer)) {
+                this.isBlocked = true;
+                return;
+            }
+
+
             this.angle -= ROTATION_SPEED;
             if (this.angle < 0) this.angle +=360;
             hasMoved = true;
             this.lastMove = KEY_CODES.LEFT;
         }
         if ((isKeyPressed[KEY_CODES.RIGHT] || isKeyPressed[KEY_CODES.D]) && this.canMoveThatWay(KEY_CODES.RIGHT)) {
+            let mockPlayer = new Player(this.id, this.x, this.y, this.angle + ROTATION_SPEED, this.color);
+            mockPlayer.angle += ROTATION_SPEED;
+            if (mockPlayer.angle > 360) mockPlayer.angle -=360;
+            if (this.checkCollisions(mockPlayer)) {
+                this.isBlocked = true;
+                return;
+            }
+
             this.angle += ROTATION_SPEED;
             if (this.angle > 360) this.angle -= 360;
             hasMoved = true;
             this.lastMove = KEY_CODES.RIGHT;
         }
         if ((isKeyPressed[KEY_CODES.UP] || isKeyPressed[KEY_CODES.W]) && this.canMoveThatWay(KEY_CODES.UP)) {
+            let mockPlayer = new Player(this.id, this.x, this.y, this.angle, this.color);
+            mockPlayer.x += Math.cos(degreesToRadians(mockPlayer.angle)) * FORWARD_SPEED;
+            mockPlayer.y += Math.sin(degreesToRadians(mockPlayer.angle)) * FORWARD_SPEED;
+            if (this.checkCollisions(mockPlayer)) {
+                this.isBlocked = true;
+                return;
+            }
+
             this.x += Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
             this.y += Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
             this.lastMove = KEY_CODES.UP;
         }
         if ((isKeyPressed[KEY_CODES.DOWN] || isKeyPressed[KEY_CODES.S]) && this.canMoveThatWay(KEY_CODES.DOWN)) {
+            let mockPlayer = new Player(this.id, this.x, this.y, this.angle, this.color);
+            mockPlayer.x -= Math.cos(degreesToRadians(mockPlayer.angle)) * FORWARD_SPEED;
+            mockPlayer.y -= Math.sin(degreesToRadians(mockPlayer.angle)) * FORWARD_SPEED;
+            if (this.checkCollisions(mockPlayer)) {
+                this.isBlocked = true;
+                return;
+            }
+
             this.x -= Math.cos(degreesToRadians(this.angle)) * FORWARD_SPEED;
             this.y -= Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
