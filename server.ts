@@ -7,6 +7,13 @@ import { Point, Rect, Player, Projectile, Cover } from './types';
 const PROJECTILE_SPEED = 10;
 const PROJECTILE_RADIUS = 8;
 
+const SPAWN_POINTS = [
+  { x: 50, y: 50 },   // Top-left corner
+  { x: 800, y: 600 },   // Top-right corner
+  { x: 50, y: 500 },   // Bottom-left corner
+  { x: 800, y: 50 }    // Bottom-right corner
+];
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -32,7 +39,8 @@ io.on('connection', (socket) => {
 
   socket.on('loginRequest', () => {
     const id = socket.id;
-    const newPlayer: Player = { id, x: Math.random() * 800, y: Math.random() * 600, angle: Math.random() * 360, health: 100, color: ['orange', 'blue', 'red', 'green'][Math.floor(Math.random() * 4)] };
+    const spawnPoint = SPAWN_POINTS[Math.floor(Math.random() * SPAWN_POINTS.length)];
+    const newPlayer: Player = { id, x: spawnPoint.x, y: spawnPoint.y, angle: Math.random() * 360, health: 100, color: ['orange', 'blue', 'red', 'green'][Math.floor(Math.random() * 4)] };
     socket.emit('userLogin', {players, newPlayer, covers});
     socket.broadcast.emit('newPlayer', newPlayer);
     players.push(newPlayer);
