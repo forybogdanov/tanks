@@ -9,6 +9,7 @@ class Projectile {
         this.ticksFromLastMove = 0;
         this.isBlocked = false;
         this.lastMove = null;
+        this.isForward = 1;
     }
     draw() {
         drawCircle(this.x, this.y, PROJECTILE_RADIUS, this.color, "white");
@@ -89,7 +90,7 @@ class Player {
         if (this.cooldown < 0) this.cooldown = 0;
         if ((isKeyPressed[KEY_CODES.LEFT] || isKeyPressed[KEY_CODES.A]) && this.canMoveThatWay(KEY_CODES.LEFT)) {
             let mockPlayer = new Player(this.id, this.x, this.y, this.angle - ROTATION_SPEED, this.color);
-            mockPlayer.angle -= ROTATION_SPEED;
+            mockPlayer.angle -= ROTATION_SPEED * this.isBackward;
             if (mockPlayer.angle < 0) mockPlayer.angle +=360;
             if (this.checkCollisions(mockPlayer)) {
                 this.isBlocked = true;
@@ -97,21 +98,21 @@ class Player {
             }
 
 
-            this.angle -= ROTATION_SPEED;
+            this.angle -= ROTATION_SPEED * this.isBackward;
             if (this.angle < 0) this.angle +=360;
             hasMoved = true;
             this.lastMove = KEY_CODES.LEFT;
         }
         if ((isKeyPressed[KEY_CODES.RIGHT] || isKeyPressed[KEY_CODES.D]) && this.canMoveThatWay(KEY_CODES.RIGHT)) {
             let mockPlayer = new Player(this.id, this.x, this.y, this.angle + ROTATION_SPEED, this.color);
-            mockPlayer.angle += ROTATION_SPEED;
+            mockPlayer.angle += ROTATION_SPEED * this.isBackward;
             if (mockPlayer.angle > 360) mockPlayer.angle -=360;
             if (this.checkCollisions(mockPlayer)) {
                 this.isBlocked = true;
                 return;
             }
 
-            this.angle += ROTATION_SPEED;
+            this.angle += ROTATION_SPEED * this.isBackward;
             if (this.angle > 360) this.angle -= 360;
             hasMoved = true;
             this.lastMove = KEY_CODES.RIGHT;
@@ -129,6 +130,7 @@ class Player {
             this.y += Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
             this.lastMove = KEY_CODES.UP;
+            this.isBackward = 1;
         }
         if ((isKeyPressed[KEY_CODES.DOWN] || isKeyPressed[KEY_CODES.S]) && this.canMoveThatWay(KEY_CODES.DOWN)) {
             let mockPlayer = new Player(this.id, this.x, this.y, this.angle, this.color);
@@ -143,6 +145,7 @@ class Player {
             this.y -= Math.sin(degreesToRadians(this.angle)) * FORWARD_SPEED;
             hasMoved = true;
             this.lastMove = KEY_CODES.DOWN;
+            this.isBackward = -1;
         }
         if (isKeyPressed[KEY_CODES.SPACE] && this.cooldown === 0) {
             let projX = this.x + Math.cos(degreesToRadians(this.angle)) * 60;
@@ -175,6 +178,7 @@ class Player {
             this.handleMoveSound();
         } else {
             this.ticksFromLastMove++;
+            this.isBackward = 1;
         }
     }
     handleDeath() {
