@@ -1,5 +1,5 @@
 class Projectile {
-    constructor(id, x, y, direction, color) {
+    constructor(id, x, y, direction, color, createdAt) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -10,6 +10,7 @@ class Projectile {
         this.isBlocked = false;
         this.lastMove = null;
         this.isForward = 1;
+        this.createdAt = createdAt;
     }
     draw() {
         drawCircle(this.x, this.y, PROJECTILE_RADIUS, this.color, "white");

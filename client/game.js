@@ -47,8 +47,8 @@ window.addEventListener("beforeunload", () => {
 });
 
 socket.on('shoot', (data) => {
-    const { id, x, y, direction, color } = data;
-    let projectile = new Projectile(id, x, y, direction, color);
+    const { id, x, y, direction, color, createdAt } = data;
+    let projectile = new Projectile(id, x, y, direction, color, createdAt);
     objects.push(projectile);
 });
 
