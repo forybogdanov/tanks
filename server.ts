@@ -6,6 +6,7 @@ import { Point, Rect, Player, Projectile, Cover } from './types';
 
 const PROJECTILE_SPEED = 10;
 const PROJECTILE_RADIUS = 8;
+const PROJECTILE_LIFETIME_MS = 10000;
 
 const SPAWN_POINTS = [
   { x: 50, y: 50 },   // Top-left corner
@@ -62,9 +63,10 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('shoot', (data: Projectile) => {
-    projectiles.push(data);
-    socket.broadcast.emit('shoot', data);
+  socket.on('shoot', (data: Omit<Projectile, 'createdAt'>) => {
+    const projectileWithTimestamp: Projectile = { ...data, createdAt: new Date() };
+    projectiles.push(projectileWithTimestamp);
+    socket.broadcast.emit('shoot', projectileWithTimestamp);
   });
 });
 
@@ -101,6 +103,10 @@ function checkForCollisions() {
 
 function updateProjectiles() {
   for (let projectile of projectiles) {
+    if (new Date().getTime() - projectile.createdAt.getTime() > PROJECTILE_LIFETIME_MS) {
+      projectiles = projectiles.filter(pr => pr !== projectile);
+      continue;
+    }
     projectile.x += Math.cos(degreesToRadians(projectile.direction)) * PROJECTILE_SPEED;
     projectile.y += Math.sin(degreesToRadians(projectile.direction)) * PROJECTILE_SPEED;
   }

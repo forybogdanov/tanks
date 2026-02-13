@@ -27,6 +27,7 @@ export interface Projectile {
     y: number;
     direction: number;
     color: string;
+    createdAt: Date;
 }
 
 export interface Cover {
